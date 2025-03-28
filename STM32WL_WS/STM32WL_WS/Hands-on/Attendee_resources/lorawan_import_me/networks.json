@@ -1,0 +1,1 @@
+[{"dcycle_init":0,"gw_power":6,"init_chans":"0-2","join1_delay":5,"join2_delay":6,"max_datr":5,"max_eirp":14,"max_power":3,"min_power":1,"name":"TestNetwork","netid":"000000","region":"EU868","rx1_delay":1,"rx2_delay":2,"rxwin_init":{"rx1_dr_offset":0,"rx2_dr":0,"rx2_freq":868},"tx_codr":"4/5"}]

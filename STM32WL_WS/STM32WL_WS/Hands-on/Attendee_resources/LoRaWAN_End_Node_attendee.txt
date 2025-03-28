@@ -1,0 +1,74 @@
+
+Source code excerpts to add/modify lora_app.c file
+
+Step #1: include stdio.h as snprintf() is needed to convert data format and copy to the RAM buffer 
+
+#include <stdio.h>
+
+
+
+Step #2: Disable RF Duty Cycle during development to avoid postpone TX request by protocol stack automatically
+
+LmHandlerSetDutyCycleEnable(false);
+
+
+
+Step #3: Modify SendTXData() function body to simplify the flow, send temperature to the network
+
+static void SendTxData(void)
+{
+  int16_t temperature = 0;
+  UTIL_TIMER_Time_t nextTxIn = 0;
+
+  temperature = SYS_GetTemperatureLevel() >> 8; /* degC */
+
+  AppData.Port = LORAWAN_USER_APP_PORT;
+  AppData.BufferSize = snprintf((char*)AppData.Buffer,LORAWAN_APP_DATA_BUFFER_MAX_SIZE,"%d",temperature);
+  LmHandlerSend(&AppData,LORAWAN_DEFAULT_CONFIRMED_MSG_STATE,&nextTxIn,false);
+  if (nextTxIn>0) { APP_LOG(TS_ON, VLEVEL_L,"Next TX in ~ %ds\r\n",nextTxIn/1000); }
+}
+
+
+
+Step #4: Modify OnRxData() callback to simplify the flow
+
+static void OnRxData(LmHandlerAppData_t *appData, LmHandlerRxParams_t *params)
+{
+  SYS_LED_On(SYS_LED_BLUE);
+  UTIL_TIMER_Start(&RxLedTimer);
+  switch (appData->Port)
+  {
+    case LORAWAN_USER_APP_PORT:
+	  switch (appData->Buffer[0])
+	  {
+	    case 'I':
+	      APP_LOG(TS_ON, VLEVEL_L,"AppMsg -> INCREASE temperature.\r\n\r\n");
+		  break;
+		case 'D':
+		  APP_LOG(TS_ON, VLEVEL_L,"AppMsg -> DECREASE temperature.\r\n\r\n");
+		  break;
+		case 'E':
+		  APP_LOG(TS_ON, VLEVEL_L,"AppMsg -> EQUALIZED temperature.\r\n\r\n");
+		  break;
+		default:
+		  APP_LOG(TS_ON, VLEVEL_L,"AppMsg -> ERROR: received data inconsistent.\r\n\r\n");
+		  break;
+	  }
+	  break;
+    default:
+      break;
+  }
+}
+
+
+
+Step #5: Following build console output, comment out not used variable AppLedStateOn
+
+//static uint8_t AppLedStateOn = RESET;
+
+
+
+
+
+
+

@@ -1,0 +1,1 @@
+[{"app":"NodeRed","connid":"NodeRedConnector","enabled":true,"format":"json","health_alerts":[],"health_decay":0,"health_reported":0,"publish_uplinks":"data","received":"tx/#","subscribe":"tx/#","uri":"mqtt://localhost:1883"}]
